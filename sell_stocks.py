@@ -16,7 +16,7 @@ sell        = []
 maintain    = []
 
 #%% Functions
-def actions ():
+def sell_check ():
     for i in ativos:
         tick = yf.Ticker(i).info
         instant_price = tick['currentPrice']
@@ -35,17 +35,17 @@ def actions ():
             print(f"{ativos[i]}: R$ {prices[i]}\n    No action required\n")
             maintain.append(ativos[i])
 
-def new_test():
+def send_mail():
     subject     = "Vender Ações Semanais"
     body        = f"As ações {sell} atingiram o preço desejado. VENDER é sugerido!" #add desired message
     sender      = "abcd@gmail.com"  #add desired email
     recipients  = ["abcd@gmail.com"] #add desired email
     password    = "1234 5678 1234 5678" #add Google 16 digit app code
 
-    msg = MIMEText(body)
-    msg['Subject'] = subject
-    msg['From'] = sender
-    msg['To'] = ', '.join(recipients)
+    msg             = MIMEText(body)
+    msg['Subject']  = subject
+    msg['From']     = sender
+    msg['To']       = ', '.join(recipients)
     
     with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp_server:
        smtp_server.login(sender, password)
@@ -54,8 +54,10 @@ def new_test():
     print("Message sent!")
 
 #%%Main
-actions()
+sell_check()
+
+#Checks if there is a Stock within the SELL range. If yes, send warning email.
 if sell:
-    new_test()
+    send_mail()
 
 sell = []
