@@ -2,16 +2,18 @@ import numpy as np
 import pandas as pd
 import yfinance as yf
 import matplotlib.pyplot as plt
-import ssl
 
 import smtplib
 from email.mime.text import MIMEText
 import config
 
-#%% Weekly Wallet
+#%% Weekly Projection Menu
 ativos      = ['CSMG3.SA', 'EQTL3.SA', 'RAIL3.SA', 'VALE3.SA']
 target_gain = [22.20, 36.52, 24.27, 65.67]
 target_loss = [18.16, 29.88, 19.85, 53.73]
+weights     = [0.25, 0.25, 0.25, 0.25]
+my_wallet   = 12.80
+
 
 prices      = []
 sell        = []
@@ -26,11 +28,11 @@ def sell_check ():
 
     for i in range(len(ativos)):
         if (prices[i] <= target_loss[i]):
-            print(f"You should LOSS sell {ativos[i]} at R$ {prices[i]}")
+            print(f"You should LOSS sell {ativos[i]} at R$ {prices[i]}\n")
             sell.append(ativos[i])
 
         elif (prices[i]>=target_gain[i]):
-            print(f"You should GAIN sell {ativos[i]} at R$ {prices[i]}")
+            print(f"You should GAIN sell {ativos[i]} at R$ {prices[i]}\n")
             sell.append(ativos[i])
             
         else:
@@ -56,9 +58,25 @@ def send_mail(status):
     
     print("Message sent!")
 
-#%%Main
+def calculate_shares(total_balance, percentages, stock_prices):
+    # Calculate the total amount of money available for each stock
+    total_allocation = [total_balance * percentage for percentage in percentages]
+    
+    # Calculate the number of shares you can buy for each stock
+    shares_to_buy = [int(allocation / price) for allocation, price in zip(total_allocation, stock_prices)]
+    
+    total_spent = sum([shares * price for shares, price in zip(shares_to_buy, stock_prices)])
+    remaining_balance = total_balance - total_spent
+
+    print("Number of individual shares:\n")
+    for i in range(len(ativos)):
+        print(f"{ativos[i]}: {shares_to_buy[i]} share(s)")
+    print(f"\nRemaining balance: R$ {remaining_balance:.2f}")
+    return shares_to_buy
+#%% ###################### Main #################################
 sell_check()
-send_mail(sell)
+calculate_shares(my_wallet, weights, prices)
+
 #Checks if there is a Stock within the SELL range. If yes, send warning email.
 if (sell):
     send_mail(sell)
