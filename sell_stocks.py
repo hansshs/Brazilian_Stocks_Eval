@@ -6,11 +6,13 @@ import ssl
 
 import smtplib
 from email.mime.text import MIMEText
+import config
 
 #%% Weekly Wallet
 ativos      = ['CSMG3.SA', 'EQTL3.SA', 'RAIL3.SA', 'VALE3.SA']
 target_gain = [22.20, 36.52, 24.27, 65.67]
 target_loss = [18.16, 29.88, 19.85, 53.73]
+
 prices      = []
 sell        = []
 maintain    = []
@@ -35,12 +37,13 @@ def sell_check ():
             print(f"{ativos[i]}: R$ {prices[i]}\n    No action required\n")
             maintain.append(ativos[i])
 
-def send_mail():
+def send_mail(status):
     subject     = "Vender Ações Semanais"
-    body        = f"As ações {sell} atingiram o preço desejado. VENDER é sugerido!" #add desired message
-    sender      = "abcd@gmail.com"  #add desired email
-    recipients  = ["abcd@gmail.com"] #add desired email
-    password    = "1234 5678 1234 5678" #add Google 16 digit app code
+    actions_str = '\n '.join(status)
+    body        = f"As seguintes ações atingiram o preço desejado:\n {actions_str}\nVENDER é sugerido!" #add desired message
+    sender      = config.SENDER     #add desired email
+    recipients  = config.RECIPIENTS #add desired email
+    password    = config.PASSWORD   #add Google 16 digit app code
 
     msg             = MIMEText(body)
     msg['Subject']  = subject
@@ -55,9 +58,10 @@ def send_mail():
 
 #%%Main
 sell_check()
-
+send_mail(sell)
 #Checks if there is a Stock within the SELL range. If yes, send warning email.
-if sell:
-    send_mail()
+if (sell):
+    send_mail(sell)
 
+#Makes sure, the variable is ready for another iteration
 sell = []
