@@ -7,12 +7,15 @@ import smtplib
 from email.mime.text import MIMEText
 import config
 
+import schedule
+import time
+
 #%% Weekly Projection Menu
 ativos      = ['CSMG3.SA', 'EQTL3.SA', 'RAIL3.SA', 'VALE3.SA']
 target_gain = [22.20, 36.52, 24.27, 65.67]
 target_loss = [18.16, 29.88, 19.85, 53.73]
 weights     = [0.25, 0.25, 0.25, 0.25]
-my_wallet   = 12.80
+my_wallet   = 268.4
 
 
 prices      = []
@@ -20,6 +23,12 @@ sell        = []
 maintain    = []
 
 #%% Functions
+
+def print_start_time():
+    start_time = time.strftime("%Y-%m-%d %H:%M:%S")
+    print("\n\nIteration running at:", start_time)
+    return start_time
+
 def sell_check ():
     for i in ativos:
         tick = yf.Ticker(i).info
@@ -74,12 +83,19 @@ def calculate_shares(total_balance, percentages, stock_prices):
     print(f"\nRemaining balance: R$ {remaining_balance:.2f}")
     return shares_to_buy
 #%% ###################### Main #################################
-sell_check()
-calculate_shares(my_wallet, weights, prices)
 
-#Checks if there is a Stock within the SELL range. If yes, send warning email.
-if (sell):
-    send_mail(sell)
+def execution():
+    print("Main loop started...\n")
+    print_start_time()
+    #Check selling position
+    sell_check()
 
-#Makes sure, the variable is ready for another iteration
-sell = []
+    #Indicates how many shares can be bought with weekly balance
+    calculate_shares(my_wallet, weights, prices)
+
+    #Checks if there is a Stock within the SELL range. If yes, send warning email.
+    if (sell):
+        send_mail(ss.sell)
+
+    #Makes sure, the variable is ready for another iteration
+    sell.clear()
