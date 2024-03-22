@@ -16,6 +16,7 @@ target_gain = [22.20, 36.52, 24.27, 65.67]
 target_loss = [18.16, 29.88, 19.85, 53.73]
 weights     = [0.25, 0.25, 0.25, 0.25]
 my_wallet   = 268.4
+mkt_close   = "17:00"
 
 
 prices      = []
@@ -95,7 +96,7 @@ def execution():
 
     #Checks if there is a Stock within the SELL range. If yes, send warning email.
     if (sell):
-        send_mail(ss.sell)
+        send_mail(sell)
 
     #Makes sure, the variable is ready for another iteration
     sell.clear()
