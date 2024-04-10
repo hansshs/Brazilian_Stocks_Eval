@@ -4,22 +4,23 @@ import yfinance as yf
 import matplotlib.pyplot as plt
 
 import smtplib
-from email.mime.text import MIMEText
+from   email.mime.text import MIMEText
 import config
 
 import schedule
 import time
 
 #%% Weekly Projection Menu
-ativos      = ['CSMG3.SA', 'EQTL3.SA', 'RAIL3.SA', 'VALE3.SA']
-target_gain = [22.20, 36.52, 24.27, 65.67]
-target_loss = [18.16, 29.88, 19.85, 53.73]
+ativos      = ['ABEV3.SA', 'EQTL3.SA', 'VIVT3.SA', 'VALE3.SA']
+target_gain = [13.45, 35.04, 56.62, 65.68]
+target_loss = [11.01, 28.67, 46.32, 53.74]
 weights     = [0.25, 0.25, 0.25, 0.25]
-my_wallet   = 268.4
+paid        = [12.19, 32.24, 51.58, 62.56]
+my_wallet   = 267.31
 mkt_close   = "17:00"
 
 
-prices      = []
+prices      = []  #This variables are for the email only.
 sell        = []
 maintain    = []
 
@@ -39,14 +40,15 @@ def sell_check ():
     for i in range(len(ativos)):
         if (prices[i] <= target_loss[i]):
             print(f"You should LOSS sell {ativos[i]} at R$ {prices[i]}\n")
-            sell.append(ativos[i])
+            sell.append(ativos[i]) #se condiçao verdadeira, adiciona ativo na lista
 
         elif (prices[i]>=target_gain[i]):
             print(f"You should GAIN sell {ativos[i]} at R$ {prices[i]}\n")
-            sell.append(ativos[i])
+            sell.append(ativos[i]) #se condiçao verdadeira, adiciona ativo na lista
             
         else:
-            print(f"{ativos[i]}: R$ {prices[i]}\n    No action required\n")
+            ratio = ((prices[i] - paid[i])/paid[i])*100
+            print(f"{ativos[i]}: R$ {prices[i]}\n    No action required\n    Current ratio: {ratio:.3f}%")
             maintain.append(ativos[i])
 
 def send_mail(status):
@@ -95,8 +97,8 @@ def execution():
     calculate_shares(my_wallet, weights, prices)
 
     #Checks if there is a Stock within the SELL range. If yes, send warning email.
-    if (sell):
-        send_mail(sell)
+    if (sell): #checa se sell é vazio
+        send_mail(sell) 
 
     #Makes sure, the variable is ready for another iteration
     sell.clear()
